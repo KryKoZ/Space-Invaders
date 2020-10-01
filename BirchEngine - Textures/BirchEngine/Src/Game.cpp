@@ -1,8 +1,13 @@
 #include "Game.h"
+#include "Map.h"
 #include "TextureManager.h"
 #include "GameObject.h"
 
 GameObject* player;
+
+Map* map;
+
+SDL_Renderer* Game::renderer = nullptr;
 
 Game::Game()
 {}
@@ -31,7 +36,8 @@ void Game::init(const char* title, int width, int height, bool fullscreen)
 		isRunning = true;
 	}
 
-	player = new GameObject("Assets/ghost.png", renderer, 0, 0);
+	player = new GameObject("assets/spaceShip.png", 0, 0);
+	map = new Map();
 }
 
 void Game::handleEvents()
@@ -58,6 +64,7 @@ void Game::update()
 void Game::render()
 {
 	SDL_RenderClear(renderer);
+	map->DrawMap();
 	player->Render();
 	SDL_RenderPresent(renderer);
 }
