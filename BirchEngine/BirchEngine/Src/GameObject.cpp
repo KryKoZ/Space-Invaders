@@ -9,20 +9,25 @@ GameObject::GameObject(const char* texturesheet, int x, int y)
 	Ypos = y;
 }
 
+GameObject::~GameObject()
+{
+
+}
+
 void GameObject::Update()
 {
 	Xpos++;
 	Ypos++;
 
-	srcRect.h = 32;
-	srcRect.w = 32;
+	srcRect.h = 577;
+	srcRect.w = 529;
 	srcRect.x = 0;
 	srcRect.y = 0;
 
 	destRect.x = Xpos;
 	destRect.y = Ypos;
-	destRect.w = srcRect.w * 2;
-	destRect.h = srcRect.h * 2;
+	destRect.w = 64;
+	destRect.h = 64;
 }
 
 void GameObject::Render()
