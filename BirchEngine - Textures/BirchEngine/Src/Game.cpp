@@ -1,7 +1,8 @@
 #include "Game.h"
+#include "TextureManager.h"
+#include "GameObject.h"
 
-SDL_Texture* playerText;
-SDL_Rect srcR, destR;
+GameObject* player;
 
 Game::Game()
 {}
@@ -30,9 +31,7 @@ void Game::init(const char* title, int width, int height, bool fullscreen)
 		isRunning = true;
 	}
 
-	SDL_Surface* tmpSurface = IMG_Load("Assets/ghost.png");
-	playerText = SDL_CreateTextureFromSurface(renderer, tmpSurface);
-	SDL_FreeSurface(tmpSurface);
+	player = new GameObject("Assets/ghost.png", renderer, 0, 0);
 }
 
 void Game::handleEvents()
@@ -53,18 +52,13 @@ void Game::handleEvents()
 
 void Game::update()
 {
-	cnt++;
-	destR.h = 64;
-	destR.w = 64;
-	destR.x = cnt;
-
-	std::cout << cnt << std::endl;
+	player->Update();
 }
 
 void Game::render()
 {
 	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, playerText, NULL, &destR);
+	player->Render();
 	SDL_RenderPresent(renderer);
 }
 
