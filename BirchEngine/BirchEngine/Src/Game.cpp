@@ -3,11 +3,17 @@
 #include "TextureManager.h"
 #include "GameObject.h"
 
+#include "ECS.h"
+#include "Components.h"
+
 GameObject* player;
 
 Map* map;
 
 SDL_Renderer* Game::renderer = nullptr;
+
+Manager manager;
+auto& newPlayer(manager.addEntity());
 
 Game::Game()
 {}
@@ -38,6 +44,9 @@ void Game::init(const char* title, int width, int height, bool fullscreen)
 
 	player = new GameObject("assets/spaceShip.png", 0, 0);
 	map = new Map();
+
+	newPlayer.addComponent<PositionComponent>();
+	newPlayer.getComponent<PositionComponent>().setPos(500, 500);
 }
 
 void Game::handleEvents()
@@ -59,6 +68,8 @@ void Game::handleEvents()
 void Game::update()
 {
 	player->Update();
+	manager.update();
+	std::cout << newPlayer.getComponent<PositionComponent>().x() << " " << newPlayer.getComponent<PositionComponent>().y() << std::endl;
 }
 
 void Game::render()
