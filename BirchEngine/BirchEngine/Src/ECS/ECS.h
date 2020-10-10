@@ -68,10 +68,13 @@ public:
 	void update()
 	{
 		for (auto& c : components) c->update();
+	}
+
+	void draw() 
+	{
 		for (auto& c : components) c->draw();
 	}
 
-	void draw() {}
 	bool isActive() const { return active;  }
 	void destroy() { active = false;  }
 
@@ -126,7 +129,7 @@ public:
 		for (auto& e : entities) e->update(); //Update chacune des entités qui elles même update chacun des composants par la suite..
 	}
 
-	void drw()
+	void draw()
 	{
 		for (auto& e : entities) e->draw(); // Même qu'update mais draw
 	}

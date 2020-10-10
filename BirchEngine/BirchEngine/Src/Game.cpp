@@ -1,19 +1,15 @@
 #include "Game.h"
 #include "Map.h"
 #include "TextureManager.h"
-#include "GameObject.h"
-
-#include "ECS.h"
-#include "Components.h"
-
-GameObject* player;
+#include "ECS/Components.h"
+#include "Vector2D.h"
 
 Map* map;
+Manager manager;
 
 SDL_Renderer* Game::renderer = nullptr;
-
-Manager manager;
-auto& newPlayer(manager.addEntity());
+SDL_Event Game::event;
+auto& player(manager.addEntity());
 
 Game::Game()
 {}
@@ -42,17 +38,15 @@ void Game::init(const char* title, int width, int height, bool fullscreen)
 		isRunning = true;
 	}
 
-	player = new GameObject("assets/spaceShip.png", 0, 0);
 	map = new Map();
 
-	newPlayer.addComponent<PositionComponent>();
-	newPlayer.getComponent<PositionComponent>().setPos(500, 500);
+	player.addComponent<TransformComponent>();
+	player.addComponent<SpirteComponent>("assets/spaceShip.png");
+	player.addComponent<KeyboardController>();
 }
 
 void Game::handleEvents()
 {
-	SDL_Event event;
-
 	SDL_PollEvent(&event);
 
 	switch (event.type)
@@ -67,16 +61,16 @@ void Game::handleEvents()
 
 void Game::update()
 {
-	player->Update();
 	manager.update();
-	std::cout << newPlayer.getComponent<PositionComponent>().x() << " " << newPlayer.getComponent<PositionComponent>().y() << std::endl;
+	manager.refresh();
+
 }
 
 void Game::render()
 {
 	SDL_RenderClear(renderer);
 	map->DrawMap();
-	player->Render();
+	manager.draw();
 	SDL_RenderPresent(renderer);
 }
 
