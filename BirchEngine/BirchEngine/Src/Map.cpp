@@ -42,7 +42,9 @@ Map::Map()
 
 Map::~Map()
 {
-
+	SDL_DestroyTexture(star);
+	SDL_DestroyTexture(blurStar);
+	SDL_DestroyTexture(space);
 }
 
 void Map::LoadMap(int arr[20][25])

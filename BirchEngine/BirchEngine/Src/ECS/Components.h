@@ -1,6 +1,7 @@
 #pragma once
-//Fichier dans lequel on crée tous nos types de composant et on les définit. Tous héritent de Component (cf ECS.h)
+//Fichier dans lequel on inclue tous nos types de composant 
 #include "ECS.h"
 #include "TransformComponent.h"
 #include "SpriteComponent.h"
+#include "ColliderComponent.h"
 #include "KeyboardController.h"

@@ -78,10 +78,10 @@ public:
 	bool isActive() const { return active;  }
 	void destroy() { active = false;  }
 
-	//Retourne vrai ou faux selon si l'entité possède le composant qui à l'ID retournée par getComponentID
+	//Retourne vrai ou faux selon si l'entité possède le composant qui à l'ID retournée par getComponentTypeID
 	template <typename T> bool hasComponent() const
 	{
-		return ComponentBitSet[getComponentID<T>];
+		return componentBitSet[getComponentTypeID<T>()];
 	}
 
 	//Ajoute un composant à une entité
