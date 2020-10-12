@@ -1,89 +1,34 @@
 #include "Map.h"
-#include"TextureManager.h"
+#include "Game.h"
+#include <fstream>
 
-int lvl1[20][25] = {
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
-
-};
 
 Map::Map()
 {
-	star = TextureManager::LoadTexture("assets/star.png");
-	blurStar = TextureManager::LoadTexture("assets/blurStar.png");
-	space = TextureManager::LoadTexture("assets/space.png");
 
-	LoadMap(lvl1);
-
-	src.x = src.y = 0;
-	src.w = dest.w = 32;
-	src.h = dest.h = 32;
-
-	dest.x = dest.y = 0;
 }
 
 Map::~Map()
 {
-	SDL_DestroyTexture(star);
-	SDL_DestroyTexture(blurStar);
-	SDL_DestroyTexture(space);
+	
 }
 
-void Map::LoadMap(int arr[20][25])
+void Map::LoadMap(std::string path, int sizeX, int sizeY)
 {
-	for (int row = 0; row < 20; row++)
+	char tile;
+	std::fstream mapFile;
+	mapFile.open(path);
+	
+	for (int y = 0; y < sizeY; y++)
 	{
-		for (int column = 0; column < 25; column++)
+		for (int x = 0; x < sizeX; x++)
 		{
-			map[row][column] = arr[row][column];
+			mapFile.get(tile);
+			Game::AddTile(atoi(&tile), x * 32, y * 32);
+			//Pour ignorer la virgule dans le fichier texte d'ids quand fstream lit le fichier char par char
+			mapFile.ignore();
 		}
 	}
-}
 
-void Map::DrawMap()
-{
-	int type = 0;
-
-	for (int row = 0; row < 20; row++)
-	{
-		for (int column = 0; column < 25; column++)
-		{
-			type = map[row][column];
-
-			dest.x = column * 32;
-			dest.y = row * 32;
-
-			switch (type)
-			{
-				case 0:
-					TextureManager::Draw(space, src, dest);
-					break;
-				case 1:
-					TextureManager::Draw(blurStar, src, dest);
-					break;
-				case 2:
-					TextureManager::Draw(star, src, dest);
-				default:
-					break;
-			}
-		}
-	}
+	mapFile.close();
 }

@@ -32,10 +32,13 @@ public:
 			path = "assets/space.png";
 			break;
 		case 1:
-			path = "assets/star.png";
+			path = "assets/blurStar.png";
 			break;
 		case 2:
-			path = "assets/blurStar.png";
+			path = "assets/asteroid.png";
+			break;
+		case 3:
+			path = "assets/star.png";
 			break;
 		default:
 			break;
