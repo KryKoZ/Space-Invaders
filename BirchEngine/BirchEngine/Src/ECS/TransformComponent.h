@@ -1,3 +1,4 @@
+#pragma once
 #include "Components.h"
 #include "../Vector2D.h"
 
@@ -17,12 +18,12 @@ public:
 	
 	TransformComponent()
 	{
-		position.x = position.y = 0.0f;
+		position.Zero();
 	}
 
 	TransformComponent(int sc)
 	{
-		position.x = position.y = 0.0f;
+		position.Zero();
 		scale = sc;
 	}
 
@@ -43,7 +44,7 @@ public:
 
 	void init() override
 	{
-		velocity.x = velocity.y = 0;
+		velocity.Zero();
 	}
 
 	void update() override
