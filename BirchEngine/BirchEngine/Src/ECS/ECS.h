@@ -12,29 +12,35 @@
 
 class Component;
 class Entity;
+class Manager;
 
 using ComponentID = std::size_t;
+using Group = std::size_t;
 
 //Génere un ID pour chaque nouveau composant et le retourn. Est incrémenté de 1 pour chaque nouveau composant créé.
-inline ComponentID getComponentTypeID() 
+inline ComponentID getNewComponentTypeID() 
 { 
-	static ComponentID lastID = 0;
+	static ComponentID lastID = 0u;
 	return lastID++;
 }
 
 //Crée un ID pour chaque type de composant et le retourne.(ex: ID.1=physics, ID.2=position..)
 template <typename T> inline ComponentID getComponentTypeID() noexcept
 {
-	static ComponentID typeID = getComponentTypeID();
+	static ComponentID typeID = getNewComponentTypeID();
 	return typeID;
 }
 
 //Une entité ne peut pas avoir plus de 32 composants différents.
 constexpr std::size_t maxComponents = 32;
+//Mécanique des layers
+constexpr std::size_t maxGroups = 32;
 
 //Attribuer un bitset à une entité nous permettra de comparer si une entité possède bien tous les composants qui lui sont attribués ou non.
 //Un bitset est un tableau composé de 0 ou de 1, donc un tableau optimisé ne contenant que des valeurs booléennes.
 using ComponentBitSet = std::bitset<maxComponents>;
+//Comme au dessus, mais pour quel layer est activé ou non
+using GroupBitSet = std::bitset<maxGroups>;
 //ComponentArray est un tableau qui contient des pointeurs sur chacun des composants attribués à une entité avec pour taille maximale maxComponent
 using ComponentArray = std::array<Component*, maxComponents>;
 
@@ -56,14 +62,19 @@ public:
 class Entity
 {
 private:
+	Manager& manager;
 	//Si active(true) -> en jeu ; Si nonActive (false) -> Supprimée du jeu
 	bool active = true;
 	//Liste de tous les composants que l'entité contient dans un vector
 	std::vector<std::unique_ptr<Component>> components;
 	ComponentArray componentArray;
 	ComponentBitSet componentBitSet;
+	GroupBitSet groupBitSet;
 
 public:
+
+	Entity(Manager& mManager) : manager(mManager) {}
+
 	//Pour chaque composant que contient l'entité, on fait appel aux fonctions update() et draw() du composant redéfinies dans les classes enfants (en parcourant le vector components)
 	void update()
 	{
@@ -78,6 +89,16 @@ public:
 	bool isActive() const { return active;  }
 	void destroy() { active = false;  }
 
+	bool hasGroup(Group mGroup)
+	{
+		return groupBitSet[mGroup];
+	}
+
+	void addGroup(Group mGroup);
+	void delGroup(Group mGroup)
+	{
+		groupBitSet[mGroup] = false;
+	}
 	//Retourne vrai ou faux selon si l'entité possède le composant qui à l'ID retournée par getComponentTypeID
 	template <typename T> bool hasComponent() const
 	{
@@ -122,6 +143,8 @@ class Manager
 private:
 	//Listes des entités en jeu
 	std::vector<std::unique_ptr<Entity>> entities;
+	//Groupe les pointurs sur entités par 32 (maxGroups)
+	std::array<std::vector<Entity*>, maxGroups> groupedEntities;
 
 public:
 	void update() 
@@ -137,6 +160,17 @@ public:
 	//Nettoie les entitées qui ne sont plus actives (if suivi d'un erase sur un vector en plus compact)
 	void refresh()
 	{
+		for (auto i(0u); i < maxGroups; i++)
+		{
+			auto& v(groupedEntities[i]);
+			v.erase(
+				std::remove_if(std::begin(v), std::end(v), [i](Entity* mEntity)
+			{
+				return !mEntity->isActive() || !mEntity->hasGroup(i);
+			}),
+			std::end(v));
+		}
+
 		entities.erase(std::remove_if(std::begin(entities), std::end(entities), [](const std::unique_ptr<Entity>& mEntity)
 			{
 				return !mEntity->isActive();
@@ -144,10 +178,20 @@ public:
 			std::end(entities));
 	}
 
+	void AddToGroup(Entity* mEntity, Group mGroup)
+	{
+		groupedEntities[mGroup].emplace_back(mEntity);
+	}
+
+	std::vector<Entity*>& getGroup(Group mGroup)
+	{
+		return groupedEntities[mGroup];
+	}
+
 	//Instancie une nouvelle entité et l'ajoute dans le vector contenant toutes les entités.
 	Entity& addEntity()
 	{
-		Entity* e = new Entity();
+		Entity* e = new Entity(*this);
 		std::unique_ptr<Entity> uPtr{ e };
 		entities.emplace_back(std::move(uPtr));
 		return *e;
